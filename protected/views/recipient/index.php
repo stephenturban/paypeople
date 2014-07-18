@@ -5,7 +5,7 @@
 /* @var $dataProvider CActiveDataProvider */
 
 $this->breadcrumbs=array(
-	'Recipients',
+	$listname,
 );
 ?>
 <div id="simple-div"></div>

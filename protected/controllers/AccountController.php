@@ -138,17 +138,16 @@ class AccountController extends Controller
 	/**
 	 * Manages all models.
 	 */
-	public function actionAdmin()
+	public function actionAdmin($id)
 	{
-		$model =new Account('search');
-		$userId = Login::model()->getUserId(); 
+		
+		$model= Accountt::model()->findAll(array("condition"=>"user_id = $id"));
 		$model->unsetAttributes();  // clear any default values
 		if(isset($_GET['Account']))
-		{
-			$model->attributes=$_GET['Account'];	
-		}
+			$model->attributes=$_GET['Account'];
+
 		$this->render('admin',array(
-			'model'=>$model, 
+			'model'=>$model,
 		));
 	}
 
