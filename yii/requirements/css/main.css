@@ -52,6 +52,12 @@ h3
 	margin:0.2em 0pt;
 }
 
+.table,
+.table tr,
+.table td {
+    background-color: white !important;
+}
+
 table.result
 {
 	background:#E6ECFF none repeat scroll 0% 0%;

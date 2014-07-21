@@ -189,6 +189,11 @@ textarea {
   }
 }
 
+
+.list_summary{
+  background-color: white !important 
+}
+
 .clearfix {
   *zoom: 1;
 }

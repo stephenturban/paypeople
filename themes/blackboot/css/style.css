@@ -76,6 +76,9 @@ border: 1px solid #dddddd;
 form {
   margin: 0 0 18px;
 }
+list_summary{
+  background-color: white !important
+}
 fieldset {
   padding: 0;
   margin: 0;

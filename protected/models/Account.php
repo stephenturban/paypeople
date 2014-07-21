@@ -148,6 +148,68 @@ class Account extends CActiveRecord
    		return parent::beforeSave();
 	}
 
+		/**
+	*@method CheckBalance() : this  method helps to get the balance info of the tigo cash subscriber using tigo rwanda middleware
+	*@param string  $msisdn : this is the mobile number of the tigo cash subscriber
+	*@param string $pin    : this is the pin number of the tigo cash account 
+	*@return returns the decoded answer either as the balance (int) or a warning (string)
+	*/
+	public function BalanceCall($msisdn="250725038839",$pin="5000"){
+
+	    //Store your XML Request in a variable
+	    $input_xml = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://xmlns.tigo.com/MFS/GetBalanceRequest/V1" xmlns:v3="http://xmlns.tigo.com/RequestHeader/V3" xmlns:v2="http://xmlns.tigo.com/ParameterType/V2" xmlns:cor="http://soa.mic.co.af/coredata_1">
+	   <soapenv:Header xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+	      <cor:debugFlag>true</cor:debugFlag>
+	      <wsse:Security>
+	         <wsse:UsernameToken>
+	            <wsse:Username>test_mw_axis</wsse:Username>
+	            <wsse:Password>t35tMW4x1s</wsse:Password>
+	         </wsse:UsernameToken>
+	      </wsse:Security>
+	   </soapenv:Header>
+	   <soapenv:Body>
+	      <v1:GetBalanceRequest>
+	         <v3:RequestHeader>
+	            <v3:GeneralConsumerInformation>
+	               <v3:consumerID>AXIS</v3:consumerID>
+	               <!--Optional:-->
+	               <v3:transactionID>213424</v3:transactionID>
+	               <v3:country>RWA</v3:country>
+	               <v3:correlationID>112</v3:correlationID>
+	            </v3:GeneralConsumerInformation>
+	         </v3:RequestHeader>
+	         <v1:requestBody>
+	            <v1:msisdn>'.$msisdn.'</v1:msisdn>
+	            <v1:pin>'.$pin.'</v1:pin>
+	            <!--Optional:-->
+	            <!--Optional:-->
+	         </v1:requestBody>
+	      </v1:GetBalanceRequest>
+	   </soapenv:Body>
+	</soapenv:Envelope>';
+
+	// url of the server the request is going to  
+	$url = "http://10.138.84.138:8002/osb/services/GetBalance_1_0";
+
+	$soap_do = curl_init(); 
+	curl_setopt($soap_do, CURLOPT_URL,            $url );   
+	curl_setopt($soap_do, CURLOPT_CONNECTTIMEOUT, 10); 
+	curl_setopt($soap_do, CURLOPT_TIMEOUT,        10); 
+	curl_setopt($soap_do, CURLOPT_RETURNTRANSFER, true );
+	curl_setopt($soap_do, CURLOPT_SSL_VERIFYPEER, false);  
+	curl_setopt($soap_do, CURLOPT_SSL_VERIFYHOST, false); 
+	curl_setopt($soap_do, CURLOPT_POST,           true ); 
+	curl_setopt($soap_do, CURLOPT_POSTFIELDS,    $input_xml); 
+	curl_setopt($soap_do, CURLOPT_HTTPHEADER,     array('Content-Type: text/xml; charset=utf-8', 'Content-Length: '.strlen($input_xml) )); 
+	curl_setopt($soap_do, CURLOPT_USERPWD, $user="test_mw_axis" . ":" . $password="t35tMW4x1s");
+
+	// returns a long xml string reply
+	$xmlstring = curl_exec($soap_do);
+
+    // this returns either the balance (int) or an error (string)
+    return $result = Helpers::decodeBalanceString($xmlstring);
+	}
+
 
 
 }

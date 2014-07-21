@@ -6,7 +6,10 @@ class RecipientController extends Controller
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
-	public $layout='//layouts/column3';
+	public $layout='//layouts/column2';
+
+	// this is the current list_id
+	public $id;
 
 	/**
 	 * @return array action filters
@@ -60,9 +63,11 @@ class RecipientController extends Controller
 	/**
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
+	 * @param $id refers to the id of the current list 
 	 */
 	public function actionCreate($id)
 	{
+		$this->id;
 		$model=new Recipient;
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -131,8 +136,12 @@ class RecipientController extends Controller
 	 */
 	public function actionIndex($id)
 	{
+		$this->layout = '//layouts/sidebar';
 		$dataProvider= new CActiveDataProvider('Recipient', array('criteria'=>array(
 												'condition'=>'list_id = '.$id)));
+		// resets the id so that $id can be captured inside the layout  
+		$this->id = $id;
+		//
 		$paylist = Paylist::model()->findByPk($id);
 		$user_id = Login::model()->getUserId();
 		$this->render('index',array(
@@ -151,6 +160,7 @@ class RecipientController extends Controller
 	 */
 	public function actionAdmin($id)
 	{
+		$this->id = $id;
 		$model=new Recipient('search');
 		$model->unsetAttributes();  // clear any default values
 		if(isset($_GET['Recipient']))
@@ -183,24 +193,28 @@ class RecipientController extends Controller
 	*/
 	public function actionProcessPayment($id)
 	{
+		// re-sets the id for the lay-out
+		$this->id = $id;
 		// if the account id was passed in 
 		if(isset($_POST['listF']))
 		{
+			// this is the id of the account selected 
 			$account_id = $_POST['listF'];
 			// total due before payment 
 			$totaldue = Recipient::model()->totaldue($id);
+			
 			$result = Recipient::model()->MakePayment($id, $account_id); 
-
+			
 			if($result == 'not enough money')
 			{
-				Yii::app()->user->setFlash('not enough money', "This account does not have enough money 
-					to make that transaction!");
+				Yii::app()->user->setFlash('not enough money', "Not Enough Money for Transaction");
 				$this->redirect(array('recipient/index', 'id' => $id));	
 			}
-			else 
+			
+			// else 
 			$this->render('paysummary',array(
 				'id'=>$id,
-				'totaldue'=>$totaldue,
+				// 'totaldue'=>$totaldue,
 				'numpeople'=>Paylist::model()->NumIndv($id),
 				'user_id'=>Login::model()->getUserId(),
 				'accountname'=>Account::model()->AccountName($account_id),
@@ -226,6 +240,7 @@ class RecipientController extends Controller
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
+
 	}
 
 

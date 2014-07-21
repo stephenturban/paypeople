@@ -2,15 +2,15 @@
       <div class="row-fluid">
         <div class="span3">
 
-    		<table class="table table-bordered">
+    		<table class="table list_summary table-bordered">
 	<form action="<?php echo Yii::app()->createUrl('recipient/processpayment', array('id'=>$id)) ?>" method="post" >
  		<tr class="primary"><td> <h4>List Summary </h4> </td></tr>
  		<tr ><td>
- 			&nbsp;&nbsp;<?php echo $numpeople; ?> Recipient(s)
+ 			&nbsp;&nbsp;<?php echo $data['totaldue']; ?> Recipient(s)
  		</td></tr>
  		
  		<tr ><td>
- 			&nbsp;&nbsp;Total Due: &nbsp;<?php echo $totaldue ?> Rwf
+ 			&nbsp;&nbsp;Total Due: &nbsp;<?php echo $this->total ?> Rwf
  		</td></tr>
 
        <tr> <td>  

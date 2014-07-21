@@ -118,8 +118,6 @@ class Recipient extends CActiveRecord
 		return parent::model($className);
 	}
 	
-	// an attempt to use a public variable that could be modified in the controller. 
-	public $_listId; 
 
 	/* 
 	public function ListId()
@@ -136,7 +134,7 @@ class Recipient extends CActiveRecord
 	{
 		$this->list_id = $id; 
 	}
-
+	
 	public function TotalDue($list_id)
 	{
 		// find all individuals with certain list_id 
@@ -152,6 +150,7 @@ class Recipient extends CActiveRecord
 		return $total;
 
 	}
+	
 
 	/** 
 	* Makes a payment from one account of the user to all of the recipients of a certain paylist 
@@ -167,7 +166,7 @@ class Recipient extends CActiveRecord
 	public function MakePayment($list_id, $account_id)
 	{
 
-		$amount_due = Recipient::model()->TotalDue($list_id);
+		$amount_due = Recipient::model()->totaldue($list_id);
 		$account = Account::model()->findByPk($account_id);
 		$account_balance = $account->balance; 
 		
@@ -180,7 +179,7 @@ class Recipient extends CActiveRecord
 		// this may or may not be necessary - may just need to make the attempt and have confirmation 
 
 		// if (validation of transaction is true)
-		// { 
+		// {  } 
 			// update recipients amount due 
 			Recipient::model()->updateAll(array('balance'=>0),'list_id="'.$list_id.'"');
 
