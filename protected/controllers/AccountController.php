@@ -64,12 +64,12 @@ class AccountController extends Controller
 	{
 		$model=new Account;
 
-		// Uncomment the following line if AJAX validation is needed
+		// To-Do make the user account creation update via ajax 
 		// $this->performAjaxValidation($model);
-
 		if(isset($_POST['Account']))
 		{
 			$model->attributes=$_POST['Account'];
+
 			if($model->save())
 			{
 				$this->redirect(array('index','id'=>$model->id));
@@ -125,8 +125,11 @@ class AccountController extends Controller
 	 */
 	public function actionIndex()
 	{
-		echo $result = Account::Model()->BalanceCall();
+
 		$userId = Login::model()->getUserId(); 
+		// update all of the account balances upon viewing
+	    Account::model()->updateAccountBalance($userId);
+
 		// limits the data provided to only those accounts that are of the same userId 
 		$dataProvider= new CActiveDataProvider('Account', array('criteria'=>array(
 												'condition'=>'user_id="'.$userId.'"')));

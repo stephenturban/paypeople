@@ -1,3 +1,5 @@
+
+
 <?php
 /* @var $this AccountController */
 /* @var $dataProvider CActiveDataProvider */
@@ -14,7 +16,31 @@ $this->menu=array(
 
 <h1>Your Accounts</h1>
 
-<?php $this->widget('zii.widgets.CListView', array(
+
+<?php $this->widget('zii.widgets.grid.CGridView', array(
+	'id'=>'account-grid',
 	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view',
-)); ?>
+	'filter'=>$model,
+	'columns'=>array(
+		'name',
+		'mobile_comp',
+		'msisdn',
+		'balance',
+		/*
+		'company',
+		*/
+		array(
+		'class'=>'CButtonColumn',
+    	'template'=>'{manage}',
+    	'buttons'=>array
+    	(
+        'manage' => array
+        (
+            'label'=>'Manage',
+            'url'=>'Yii::app()->createUrl("account/view", array("id"=>$data->id))'
+   		 ),
+		),
+	),
+))); ?>
+
+

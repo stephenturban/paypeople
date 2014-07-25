@@ -10,14 +10,14 @@
 	
 	<form action= "<?php echo Yii::app()->createUrl('recipient/processpayment', array('id'=> $id)) ?>" method="post" >
  		
- 		<tr class="primary"><td> <h4>List Summary </h4> </td></tr>
+ 		<tr class="primary"><td> <h4>Pay List Summary </h4> </td></tr>
  		
  		<tr ><td>
- 			&nbsp;&nbsp;<?php echo $numpeople; ?> Recipient(s)
+ 			&nbsp;&nbsp;<?php echo Yii::app()->format->formatNumber($numpeople); ?> Recipient(s)
  		</td></tr>
  		
  		<tr ><td>
- 			&nbsp;&nbsp;Total Due: &nbsp;<?php echo $totaldue ?> Rwf
+ 			&nbsp;&nbsp;Total Due: &nbsp;<?php echo Yii::app()->format->formatNumber($totaldue); ?> Rwf
  		</td></tr>
 
         <tr> <td>  
@@ -30,7 +30,7 @@
 			
        			foreach($accounts as $account)
        			{
-       				echo $account->name; ?>:&nbsp; <?php echo $account->balance; ?> Rwf<br> <?php  
+       				echo $account->name; ?>:&nbsp; <?php echo Yii::app()->format->formatNumber($account->balance); ?> Rwf<br> <?php  
        			}     
        		?>
 

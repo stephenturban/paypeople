@@ -29,8 +29,8 @@ $('.search-form form').submit(function(){
 <h1>Manage Accounts</h1>
 
 <p>
-You may optionally enter a comparison operator (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>&lt;&gt;</b>
-or <b>=</b>) at the beginning of each of your search values to specify how the comparison should be done.
+Search for any of the listed attributes. If you would like to update or delete an account, click on the 
+corresponding buttons on the right. 
 </p>
 
 <?php echo CHtml::link('Advanced Search','#',array('class'=>'search-button')); ?>
@@ -45,13 +45,10 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 	'dataProvider'=>$model->search(),
 	'filter'=>$model,
 	'columns'=>array(
-		'id',
-		'user_id',
 		'name',
 		'mobile_comp',
 		'msisdn',
 		'pin',
-		'balance',
 		/*
 		'company',
 		*/

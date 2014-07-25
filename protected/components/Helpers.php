@@ -49,6 +49,11 @@ public function decodeBalanceString($xml)
 		return 'Pin Does Not Exist. Check Your PIN';
 	}
 
+	elseif(preg_match("/Unable to complete transaction as sender/", $xml))
+	{
+		return 'Your phone number has been temporarily blocked for too many incorrect attempts.';
+	}
+
 	else
 	//  default error if not covered in other case. 	
 	return 'There was an error processing your request. Check your number and PIN and try again.';

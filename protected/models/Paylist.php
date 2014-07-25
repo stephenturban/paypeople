@@ -131,7 +131,9 @@ class Paylist extends CActiveRecord
     public function getTotalDue() 
     {
     	$list_id = $this->id; 
-    	return $totaldue = Recipient::model()->totaldue($list_id);
+    	$totaldue = Recipient::model()->totaldue($list_id);
+    	// format the number with commas   
+    	return Yii::app()->format->formatNumber($totaldue);
     	
     }
 

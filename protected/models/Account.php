@@ -35,11 +35,14 @@ class Account extends CActiveRecord
 			array('msisdn', 'length','max'=>12, 'min'=>12),
 			array('pin', 'length','max'=>4, 'min'=>4),
 			array('pin, msisdn, balance', 'numerical','integerOnly'=>true),
+			array('msisdn', 'tigoValidate'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('name, mobile_comp, msisdn, pin, company, balance', 'safe', 'on'=>'search'),
+		
 		);
 	}
+
 
 	/**
 	 * @return array relational rules.
@@ -67,12 +70,14 @@ class Account extends CActiveRecord
 		return array(
 			'id' => 'ID',
 			'user_id' => 'User',
-			'name' => 'Account Holder Name',
+			'name' => 'Account Name',
 			'mobile_comp' => 'Mobile Provider',
 			'msisdn' => 'Phone Number',
 			'pin' => 'Mobile Money Pin',
 			'company' => 'Your Company',
-			'balance'=> 'Balance'
+			'balance'=> 'Balance',
+			'totaldeposit'=> 'Total Deposits',
+			'totalpayment'=>'Total Payments'
 		);
 	}
 
@@ -142,11 +147,98 @@ class Account extends CActiveRecord
 	{
    		if($this->isNewRecord)
    		{
+   			// find the balance of the Tigo Cash account 
+   			$balance = $this->BalanceCall($this->msisdn, $this->pin); 
+   			// save this as the initial "totaldeposits" of the account
+   			$this->totaldeposit = $balance; 
+   			// save the current balance as the balance call 
+   			$this->balance = $balance; 
    			// if this is a new record, populate the user_id field with the current UserId
        		$this->user_id = Login::model()->getUserId();
    		}
    		return parent::beforeSave();
 	}
+
+
+
+
+
+	/** 
+	*  
+	* this function checks whether the given msisdn and pin number create a valid tigo cash account
+	* @param $array that takes in two arguments, the first argument is the msisdn, and the second 
+	* is the pin 
+	* @return returns false if pin and msisdn are not recognized by tigo cash , prints error 
+	* on input field 
+	*/
+	public function tigoValidate($attribute,$params)
+	{	
+		$msisdn = $this->msisdn;	
+		$pin = $this->pin; 
+
+		// $result gives either the balance or the error message 
+		$result = $this->BalanceCall($msisdn, $pin);
+		// if the pin does not equal this and the pin does not equal that
+		if($result == 'Sorry, you couldn\'t connect to Tigo Cash')
+		{
+			$this->addError($array, $result);	
+			return false; 	
+		}
+		// if the result is not the balance, then print error 
+		elseif(!is_numeric($result))
+		{
+			$this->addError($array, $result);
+			return false; 
+		}
+		
+		return true;
+	}
+
+	/**
+	*
+	* update account balance updates all of the account balances 
+	* // to-do this function should be replaced by the virtual attribute getBalance which calls the Tigo Server
+	* and returns the real time balance of the account 
+	* @param $id is the user_id 
+	* @return returns false if one of the accounts is not connected to Tigo Cash, or if not connected to Tigo Cash
+	* 
+	*
+	*/ 
+	public function updateAccountBalance($id)
+	{	
+		// finds all of the current models in the account 
+		$accounts = Account::model()->findAll();
+
+		foreach ($accounts as $account)
+		{
+
+			// get the new balance for the account 
+			$newbalance = Account::model()->BalanceCall($account->msisdn, $account->pin); 
+
+			if(is_numeric($newbalance))
+			{
+				// update the account balance
+				$account->balance = $newbalance;
+				// save the new balance attribute 
+				$account->saveAttributes(array('balance'));
+			}	
+		}
+		// otherwise there was an error and return false 
+		return false; 
+	}
+	/**
+	*
+	* getTotalPayments is a virtual attribute that gets the total payments (in rwf) that an account has made 
+	* @return  this function returns an int of the number of the total payments of the account 
+	* called in the view as 'totalPayments' or as $this->totalPayments
+	*/
+	public function getTotalPayment()
+	{
+		$totalPayments = $this->totaldeposit - $this->balance;
+		return $totalPayments;
+	}
+
+
 
 		/**
 	*@method CheckBalance() : this  method helps to get the balance info of the tigo cash subscriber using tigo rwanda middleware
@@ -154,7 +246,7 @@ class Account extends CActiveRecord
 	*@param string $pin    : this is the pin number of the tigo cash account 
 	*@return returns the decoded answer either as the balance (int) or a warning (string)
 	*/
-	public function BalanceCall($msisdn="250725038839",$pin="5000"){
+	public function BalanceCall($msisdn,$pin){
 
 	    //Store your XML Request in a variable
 	    $input_xml = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://xmlns.tigo.com/MFS/GetBalanceRequest/V1" xmlns:v3="http://xmlns.tigo.com/RequestHeader/V3" xmlns:v2="http://xmlns.tigo.com/ParameterType/V2" xmlns:cor="http://soa.mic.co.af/coredata_1">

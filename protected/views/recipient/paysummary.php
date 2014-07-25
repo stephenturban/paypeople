@@ -20,15 +20,15 @@ $this->menu=array(
 	<form action="<?php echo Yii::app()->createUrl('recipient/processpayment', array('id'=>$id)) ?>" method="post" >
  		<tr class="primary"><td>Payment Summary</td></tr>
  		<tr ><td>
- 		     <?php echo $numpeople; ?> Recipient(s)
+ 		     <?php echo Yii::app()->format->formatNumber($numpeople); ?> Recipient(s)
  		</td></tr>
  		
  		<tr ><td>
- 			 Total Paid: &nbsp;<?php echo $totaldue ?> rwf
+ 			 Total Paid: &nbsp;<?php echo Yii::app()->format->formatNumber($totaldue); ?> Rwf
  		</td></tr>
 		
 		<tr> <td> 
-    		Current Balance:&nbsp;<?php  echo $accountbalance ?> RWF
+    		Current Balance:&nbsp;<?php  echo Yii::app()->format->formatNumber($accountbalance); ?> RWF
        </td> </tr> 
  		<tr> <td> 
  			<button class="btn btn-block btn-primary " type="submit">Pay Now</button>  </td> </tr> 

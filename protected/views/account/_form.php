@@ -50,11 +50,6 @@
 		<?php echo $form->error($model,'company'); ?>
 	</div>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'balance'); ?>
-		<?php echo $form->textField($model,'balance',array('size'=>100,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'balance'); ?>
-	</div>
 
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>

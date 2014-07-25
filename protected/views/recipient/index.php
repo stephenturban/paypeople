@@ -23,7 +23,8 @@ $this->breadcrumbs=array(
 </div>
 
 
-<?php $this->widget('zii.widgets.grid.CGridView', array(
+<?php 
+$this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'recipient-grid',
 	'dataProvider'=>$dataProvider,
 	'filter'=>$model,
@@ -31,7 +32,12 @@ $this->breadcrumbs=array(
 		'name',
 		'position',
 		'msisdn',
-		'balance',
+		'balance'=>array(
+			'header'=>'Balance (Rwf)',
+			'value'=>function($data){
+            return number_format($data->balance);
+        	},
+    	), 
 		/* 
 		* this is to implement the checklist 
 		array(

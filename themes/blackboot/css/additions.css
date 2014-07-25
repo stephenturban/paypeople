@@ -1,0 +1,26 @@
+/*!
+ * This is my individual css file 
+ * All of my css additions will reside in here 
+ *
+ * 
+ */
+
+ .textingpic {
+ 	height: 220px;
+ 	width: 200px;
+ }
+
+ .smallbox { 
+ 	background-color: white;
+ 	height: 75px;
+ 	width: 150px;
+ 	font-size:20px;
+ 	box-shadow: 0 0 10px #ccc;
+ 	font-family: inherit;
+ }
+
+ .centertext {	
+ 	text-align: center;
+ }
+	
+
