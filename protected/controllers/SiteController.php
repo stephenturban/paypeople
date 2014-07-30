@@ -98,12 +98,6 @@ class SiteController extends Controller
 		$this->render('login',array('model'=>$model));
 	}
 
-	public function actionWorld_cup()
-	{
-
-		$this->render('world_cup');
-	}
-
 	/**
 	 * Logs out the current user and redirect to homepage.
 	 */

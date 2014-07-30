@@ -200,21 +200,20 @@ class Account extends CActiveRecord
 	* // to-do this function should be replaced by the virtual attribute getBalance which calls the Tigo Server
 	* and returns the real time balance of the account 
 	* @param $id is the user_id 
-	* @return returns false if one of the accounts is not connected to Tigo Cash, or if not connected to Tigo Cash
+	* @return returns true if update was succesful, otherwise returns the error 
 	* 
 	*
 	*/ 
 	public function updateAccountBalance($id)
 	{	
 		// finds all of the current models in the account 
-		$accounts = Account::model()->findAll();
-
+		$accounts = Account::model()->findAll(array("condition"=>"user_id = $id"));
 		foreach ($accounts as $account)
 		{
-
 			// get the new balance for the account 
 			$newbalance = Account::model()->BalanceCall($account->msisdn, $account->pin); 
 
+			// if the $newbalance is returned
 			if(is_numeric($newbalance))
 			{
 				// update the account balance
@@ -222,9 +221,16 @@ class Account extends CActiveRecord
 				// save the new balance attribute 
 				$account->saveAttributes(array('balance'));
 			}	
+			
+			// if you could not connect, return the error described in helpers.php
+			else 
+			{
+				// return the error
+				return $newbalance;
+			}
 		}
-		// otherwise there was an error and return false 
-		return false; 
+		// if account updated succesfully, return true
+		return true; 
 	}
 	/**
 	*

@@ -1,7 +1,7 @@
 
 
 <?php
-
+Yii::setPathOfAlias('libphonenumber',Yii::getPathOfAlias('application.vendor.libphonenumber'));
 /* @var $this RecipientController */
 /* @var $dataProvider CActiveDataProvider */
 $this->breadcrumbs=array(
@@ -23,7 +23,7 @@ $this->breadcrumbs=array(
 </div>
 
 
-<?php 
+<?php
 $this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'recipient-grid',
 	'dataProvider'=>$dataProvider,
@@ -32,6 +32,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 		'name',
 		'position',
 		'msisdn',
+		// formats the balance 
 		'balance'=>array(
 			'header'=>'Balance (Rwf)',
 			'value'=>function($data){

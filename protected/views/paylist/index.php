@@ -10,6 +10,9 @@ $this->menu=array(
 	array('label'=>'Create Paylist', 'url'=>array('create')),
 	array('label'=>'Manage Paylist', 'url'=>array('admin')),
 );
+
+
+
 ?>
 
 <h1>Paylists</h1>
@@ -24,6 +27,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 	'columns'=>array(
 		'name',
 		'numindv',
+		// the virtual attribute totaldue is formmated in the model 
 		'totaldue',
 		'due_date',
 		

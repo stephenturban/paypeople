@@ -9,6 +9,8 @@ return array(
 	'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
 	'name'=>'PayPeople',
 	  'theme'=>'blackboot', 
+	  		// sets the default controller action as the index page 
+			'defaultController' => 'site/index', 
 	 // requires you to copy the theme under your themes directory
     'modules'=>array(
         'gii'=>array(
@@ -17,12 +19,13 @@ return array(
             ),
         ),
     ),
-
+    
     'behaviors' => array(
     	'onBeginRequest' => array(
         	'class' => 'application.components.RequireLogin'
 		)
 	),
+
 
 	// preloading 'log' component
 	'preload'=>array('log'),

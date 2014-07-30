@@ -28,7 +28,7 @@ class AccountController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','delete', 'checkbalance'),
+				'actions'=>array('index','view','delete', 'checkbalance', 'balance'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -127,15 +127,15 @@ class AccountController extends Controller
 	{
 
 		$userId = Login::model()->getUserId(); 
-		// update all of the account balances upon viewing
-	    Account::model()->updateAccountBalance($userId);
 
 		// limits the data provided to only those accounts that are of the same userId 
 		$dataProvider= new CActiveDataProvider('Account', array('criteria'=>array(
 												'condition'=>'user_id="'.$userId.'"')));
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
+			'userId'=>$userId
 		));
+
 	}
 
 	/**
@@ -182,6 +182,39 @@ class AccountController extends Controller
 
 		}
 	}
+
+	public function actionAjaxProcessor(){
+    $a = $_POST['ajaxData'];
+    // process $a and get output $b
+    // output some JSON instead of the usual text/html
+    header('Content-Type: application/json; charset="UTF-8"');
+    echo CJSON::encode(array('output'=>$b));
+    }
+
+
+
+    public function actionBalance($userId) 
+    {
+    	// $result will capture updateAccountBalance error, otherwise  $result is true
+        $result = Account::model()->updateAccountBalance($userId);
+    	$error = NUll; 
+    	// If there was an error, set the error message to true 
+    	if (!is_bool($result))
+    	{
+    		$error = true; 
+    	}	
+
+		    // provides the new data to the User Table
+	        $dataProvider= new CActiveDataProvider('Account', array('criteria'=>array(
+												'condition'=>'user_id="'.$userId.'"')));
+	        
+	        // render the new table, alert user if there was an error
+			$this->renderPartial('UserTable',array(
+			'dataProvider'=>$dataProvider,
+			'error'=>$error,
+			));	
+    
+    }
 
 
 
