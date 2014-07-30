@@ -7,6 +7,7 @@ Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/Applications/XAMPP/xamppfil
 // CWebApplication properties can be configured here.
 return array(
 	'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
+
 	'name'=>'PayPeople',
 	  'theme'=>'blackboot', 
 	  		// sets the default controller action as the index page 
@@ -19,12 +20,15 @@ return array(
             ),
         ),
     ),
-    
+     
     'behaviors' => array(
     	'onBeginRequest' => array(
+    		// For every request check to see if the user is logged-in
         	'class' => 'application.components.RequireLogin'
 		)
 	),
+	
+
 
 
 	// preloading 'log' component

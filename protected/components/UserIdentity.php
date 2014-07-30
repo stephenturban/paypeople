@@ -9,15 +9,13 @@ class UserIdentity extends CUserIdentity
 {
 	/**
 	 * Authenticates a user.
-	 * The example implementation makes sure if the username and password
-	 * are both 'demo'.
-	 * In practical applications, this should be changed to authenticate
-	 * against some persistent user identity storage (e.g. database).
+	 * Authenticate compares the inputted email and password combination and checks it
+	 * against the database of users in the Login Model 
 	 * @return boolean whether authentication succeeds.
 	 */
 	public function authenticate()
 	{	
-		// this means that you can find the username which matches this password 
+		// this means that you can find the username which matches this password in my log-in model
 		$record=Login::model()->findByAttributes(array('email'=>$this->username));
 		if($record === null)
 			print_r ($record);

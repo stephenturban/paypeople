@@ -28,6 +28,7 @@ class Login extends CActiveRecord
 		return array(
 			array('email, password', 'required'),
 			array('email, password', 'length', 'max'=>40),
+			array('email', 'unique'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, email, password', 'safe', 'on'=>'search'),

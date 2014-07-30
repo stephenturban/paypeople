@@ -20,7 +20,7 @@ class ListSummaryWidget extends CWidget
     /** 
     *  
     * This function renders the view. It passes in the $id and returns  
-    *  the total due, numper of people, available accounts and the 
+    *  the total due, numper of people,  and available accounts  
     */  
     public function run()
     {

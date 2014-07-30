@@ -45,9 +45,22 @@ $this->breadcrumbs=array(
 		<?php echo $form->error($model,'rememberMe'); ?>
 	</div>
 
+	<!-- 
+	<a class="btn btn-primary" href="<?php echo Yii::app()->createUrl('site/login'); ?>" >Log-in</a>
+	<a class="btn btn-inverse" href="<?php echo Yii::app()->createUrl('login/create'); ?>" >Create An Account</a>
+	-->
+	<div class = "row"> 
+	<button class="span2 offset1 btn btn-inverse" type="submit">Log-in</button>
+	<a class="span2 btn btn-primary" href="<?php echo Yii::app()->createUrl('login/create'); ?>">Create An Account</a>
+	</div>
+	<!-- 
 	<div class="row buttons">
 		<?php echo CHtml::submitButton('Login'); ?>
 	</div>
+	<div class="buttons">
+		<?php echo CHtml::submitButton('Create'); ?>
+	</div>
+-->
 
 <?php $this->endWidget(); ?>
 </div><!-- form -->

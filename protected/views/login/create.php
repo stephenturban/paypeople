@@ -8,11 +8,10 @@ $this->breadcrumbs=array(
 );
 
 $this->menu=array(
-	array('label'=>'List Login', 'url'=>array('index')),
-	array('label'=>'Manage Login', 'url'=>array('admin')),
+	array('label'=>'Return To Log-in', 'url'=>array('site/login')),
 );
 ?>
 
-<h1>Create Login</h1>
+<h1>Create a PayPeople Account</h1>
 
 <?php $this->renderPartial('_form', array('model'=>$model)); ?>
