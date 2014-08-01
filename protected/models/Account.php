@@ -305,7 +305,7 @@ class Account extends CActiveRecord
 	$xmlstring = curl_exec($soap_do);
 
     // this returns either the balance (int) or an error (string)
-    return $result = Helpers::decodeBalanceString($xmlstring);
+    return $result = BalanceHelper::decodeString($xmlstring);
 	}
 
 

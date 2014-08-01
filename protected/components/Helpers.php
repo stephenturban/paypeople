@@ -6,19 +6,11 @@ class Helpers {
 * @param $xml is the xml string that is returned from the balance soap call 
 * @return returns either the current balance (int) or the error in question 
 */
-public function decodeBalanceString($xml)
+public function decodeString($xml)
 {
 	if(!$xml)
 	{
 		return 'Sorry, you couldn\'t connect to Tigo Cash';
-	}
-	// this extracts the balance as a string   
-	if(preg_match("/walletBalance>(\d+)\</", $xml, $stringbalance))
-	{
-		// this return the stringbalance as an int 
-		$balance = (int) $stringbalance[1];
-
-		return $balance;
 	}
 
 	// if mistyped pin, return pin does not exist 
@@ -27,26 +19,15 @@ public function decodeBalanceString($xml)
 		return 'Pin Does Not Exist';
 	}
 
-	// checks for mistyped phone number 
-	elseif(preg_match("/User not found/", $xml))
-	{
-		return 'User Not Found: Check your phone number';
-	}
-
 	// if phone number or pin are of the incorrect length 
 	elseif(preg_match("/Invalid Request/", $xml))
 	{
 		return 'Invalid Request: Check the length of your number and pin';
 	}
 
-	elseif(preg_match("/Invalid pin passed/", $xml))
+	elseif(preg_match("/Please enter correct PIN/", $xml))
 	{
-		return 'Invalid PIN: The PIN you gave is not four digits';
-	}
-
-	elseif(preg_match("/PIN does not exist/", $xml))
-	{
-		return 'Pin Does Not Exist. Check Your PIN';
+		return 'Please check your PIN. On the next incorrect PIN your account will be barred.';
 	}
 
 	elseif(preg_match("/Unable to complete transaction as sender/", $xml))
@@ -54,9 +35,11 @@ public function decodeBalanceString($xml)
 		return 'Your phone number has been temporarily blocked for too many incorrect attempts.';
 	}
 
-	else
-	//  default error if not covered in other case. 	
-	return 'There was an error processing your request. Check your number and PIN and try again.';
+	// Second wrong attempt with PIN. If user sends incorrect request again his TigoCash Account will be barred. 
+	elseif(preg_match("/on the next wrong PIN/", $xml))
+	{
+		return 'On the next incorrect PIN entry your account will be barred. Please check your account information before trying again.';
+	}
 
 }
 

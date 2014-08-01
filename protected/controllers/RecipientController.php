@@ -136,14 +136,22 @@ class RecipientController extends Controller
 	 */
 	public function actionIndex($id)
 	{
+		// changes the layout so that we add the side bar with list information 
 		$this->layout = '//layouts/sidebar';
 		$dataProvider= new CActiveDataProvider('Recipient', array('criteria'=>array(
 												'condition'=>'list_id = '.$id)));
 		// resets the id so that $id can be captured inside the layout  
 		$this->id = $id;
-		//
+		// finds the selected paylist 
 		$paylist = Paylist::model()->findByPk($id);
+		// gets the current user id 
 		$user_id = Login::model()->getUserId();
+
+		// calls transfer money
+		$result = Recipient::model()->TransferMoney(); 
+		echo $result;
+
+
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 			'id'=>$id,

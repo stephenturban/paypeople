@@ -211,4 +211,91 @@ class Recipient extends CActiveRecord
    		}
 		return parent::beforeSave();
 	}
+
+	/** 
+	* 
+	* @method PayRecipients: this function helps us pay the recipients defined by a certain paylist 
+	* @param $account is the mobile-money account that will pay the recipients 
+	* @param $list_id is the id of the paylist that is going to be paid. 
+	*/
+	function PayRecipients ($account, $list_id)
+	{
+		// find all individuals with certain list_id 
+		$results = Recipient::model()->findAll(array("condition"=>"list_id = "));
+
+
+
+	}
+
+
+
+	/**
+	* @method TransferMoney : this  method helps us pay recipients using our Tigo Cash Accounts, 
+	* this is implemented using Tigo's API TransferMoney 
+	*@param object  $account : this is the $account that was selected to pay the individual recipients 
+	*@param object $recipient   : this is the object that holds all of the recipients information 
+	*@return returns the decoded answer either as the balance (int) or a warning (string)
+	*/
+	public function TransferMoney(){
+
+	    //Store your XML Request in a variable
+	    $input_xml = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://xmlns.tigo.com/MFS/WalletManagementRequest/V1" xmlns:v3="http://xmlns.tigo.com/RequestHeader/V3" xmlns:v2="http://xmlns.tigo.com/ParameterType/V2">
+   <soapenv:Header xmlns:cor="http://soa.mic.co.af/coredata_1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+      <cor:debugFlag>true</cor:debugFlag>
+      <wsse:Security>
+         <wsse:UsernameToken>
+            <wsse:Username>test_mw_axis</wsse:Username>
+            <wsse:Password>t35tMW4x1s</wsse:Password>
+         </wsse:UsernameToken>
+      </wsse:Security>
+   </soapenv:Header>
+   <soapenv:Body>
+      <v1:MoneyTransferRequest>
+         <v3:RequestHeader>
+            <v3:GeneralConsumerInformation>
+               <v3:consumerID>TIGO</v3:consumerID>
+               <!--Optional:-->
+               <v3:transactionID>12345qwerty</v3:transactionID>
+               <v3:country>RWA</v3:country>
+               <v3:correlationID>1234</v3:correlationID>
+            </v3:GeneralConsumerInformation>
+         </v3:RequestHeader>
+         <v1:requestBody>
+            <v1:sourceMsisdn>250725038839</v1:sourceMsisdn>
+            <v1:targetMsisdn>250728424547</v1:targetMsisdn>
+            <v1:pin>1463</v1:pin>
+            <v1:amount>100</v1:amount>
+         </v1:requestBody>
+      </v1:MoneyTransferRequest>
+   </soapenv:Body>
+</soapenv:Envelope>';
+
+	// url of the server the request is going to  
+	$url = "http://10.138.84.138:8002/osb/services/WalletManagement_1_0";
+
+	$soap_do = curl_init(); 
+	curl_setopt($soap_do, CURLOPT_URL,            $url );   
+	curl_setopt($soap_do, CURLOPT_CONNECTTIMEOUT, 10); 
+	curl_setopt($soap_do, CURLOPT_TIMEOUT,        10); 
+	curl_setopt($soap_do, CURLOPT_RETURNTRANSFER, true );
+	curl_setopt($soap_do, CURLOPT_SSL_VERIFYPEER, false);  
+	curl_setopt($soap_do, CURLOPT_SSL_VERIFYHOST, false); 
+	curl_setopt($soap_do, CURLOPT_POST,           true ); 
+	curl_setopt($soap_do, CURLOPT_POSTFIELDS,    $input_xml); 
+	curl_setopt($soap_do, CURLOPT_HTTPHEADER,     array('Content-Type: text/xml; charset=utf-8', 'Content-Length: '.strlen($input_xml) )); 
+	curl_setopt($soap_do, CURLOPT_USERPWD, $user="test_mw_axis" . ":" . $password="t35tMW4x1s");
+
+	// returns a long xml string reply
+	$xmlstring = curl_exec($soap_do);
+
+    // this returns either the balance (int) or an error (string)
+    return $result = MoneyTransferHelper::decodeString($xmlstring);
+	}
+
+
+
+
+
+
+
 }
