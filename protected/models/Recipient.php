@@ -152,6 +152,7 @@ class Recipient extends CActiveRecord
 	}
 	
 
+
 	/** 
 	* Makes a payment from one account of the user to all of the recipients of a certain paylist 
 	* @param this function takes in the list_id and the account_id 
@@ -163,6 +164,7 @@ class Recipient extends CActiveRecord
 	* @todo add the the server side call - request confirmation  
 	* @todo add the client side call - update the other account and recipients field 
 	*/ 
+	/*
 	public function MakePayment($list_id, $account_id)
 	{
 
@@ -170,10 +172,10 @@ class Recipient extends CActiveRecord
 		$account = Account::model()->findByPk($account_id);
 		$account_balance = $account->balance; 
 		
-		if ($amount_due > $account_balance)
-		{
-			return 'not enough money'; 
-		}
+			if ($amount_due > $account_balance)
+			{
+				return 'not enough money'; 
+			}
 
 		// @todo insert server side validation here that you have enough money 
 		// this may or may not be necessary - may just need to make the attempt and have confirmation 
@@ -197,6 +199,7 @@ class Recipient extends CActiveRecord
 
 
 	}
+	*/ 
 
 
 
@@ -212,31 +215,115 @@ class Recipient extends CActiveRecord
 		return parent::beforeSave();
 	}
 
+
+	/** 
+	*
+	* CheckTransfer checks whether the amount of money you have in your acount is sufficient to pay the 	
+	* of  the specified list of individuals 
+	* @param: $list_id is the id of the specified list 
+	* @param: $account_id is the id of the account that was selected to pay 
+	* @return: if succesful return nothing, if unsuccesful return not enough money 
+	*
+	**/ 
+	function CheckTransfer($list_id, $account_id)
+	{
+		$amount_due = Recipient::model()->totaldue($list_id);
+		$account = Account::model()->findByPk($account_id);
+		$account_balance = $account->balance; 
+		
+		if ($amount_due > $account_balance)
+		{
+			return 'not enough money'; 
+		}
+	}
+
+
 	/** 
 	* 
-	* @method PayRecipients: this function helps us pay the recipients defined by a certain paylist 
-	* @param $account is the mobile-money account that will pay the recipients 
+	* MakePayment: this function helps us pay the recipients defined by a certain paylist 
+	* @param $account_id identifies the mobile-money account that will pay the recipients 
 	* @param $list_id is the id of the paylist that is going to be paid. 
+	* @return An array that holds the transaction_id and the transaction_status 
+	* transaction_status checks whether there were any errors in the transaction. I
+	* If there were it returns 'has error'
 	*/
-	function PayRecipients ($account, $list_id)
+	function MakePayment($account_id, $list_id)
 	{
-		// find all individuals with certain list_id 
-		$results = Recipient::model()->findAll(array("condition"=>"list_id = "));
+		// instantiates new column in BulkPayment table 
+		$BPModel = new BulkPayment;
+		// inserts the new BPModel into the database
+		$BPModel->save();
+		
+		// instantiate the account that is being used to pay money
+		$account = Account::model()->findByPk($account_id);
 
+		// finds all individuals of the selected list
+		$recipients = Recipient::model()->findAll(array("condition"=>"list_id = $list_id"));
 
+		// this variable keeps track of the total amount paid in this transaction 
+		$totalpaid; 
+
+		// loop through the array of recipients, paying each of the individuals 
+		foreach($recipients as $recipient)
+		{
+			// instantiates a new IndividualPayment
+			$IPModel = new IndividualPayment;
+
+			// Makes the transfer and returns the status of the transfer 
+			$result = Recipient::model()->TransferMoney($account->msisdn, $account->pin, $recipient->msisdn, $recipient->balance);
+
+			// the amount that the recipient should be paid 
+			$recipientBalance = $recipient->balance;
+
+			if($result == "success")
+			{
+				// add the amount paid to this individual to the total paid amount
+				$totalpaid = $totalpaid + $recipient->balance;
+				// resets recipients  amount due to zero 
+				$recipient->balance = 0; 
+				$recipient->save();
+
+			}
+			
+			else 
+			{
+				$error = 'has error'; 
+			}
+			
+			// defines the attributes that will be put into the 
+			$IPattributes = array("name"=>$recipient->name, "recipient_id"=>$recipient->id, 
+			                "transfer_id"=>$BPModel->id, "amount"=>$recipientBalance, "status"=>$result);
+			// set the attributes of the Individual Payment 
+			$IPModel->setAttributes($IPattributes, $safeOnly = false); 
+			// save the new transaction into the database
+			$IPModel->save();
+		}
+		
+		// declares the attributes for the bulk payment record 
+		$BPAttributes = array("list_id"=>$list_id, "account_id"=>$account_id, "amount"=>$totalpaid);
+		// puts those attributes inside the BPModel Object
+		$BPModel->setAttributes($BPAttributes, $safeOnly = false);
+		// saves the model to the database 
+		$BPModel->save();
+		// transaction_status only returns "has error" if there was an error in the transaction.
+		return array("tranfer_id"=>$BPModel->id, "transaction_status"=>$error); 
 
 	}
+
 
 
 
 	/**
 	* @method TransferMoney : this  method helps us pay recipients using our Tigo Cash Accounts, 
 	* this is implemented using Tigo's API TransferMoney 
-	*@param object  $account : this is the $account that was selected to pay the individual recipients 
-	*@param object $recipient   : this is the object that holds all of the recipients information 
+	*@param string  $sourceMsisdn: refers to the account that was selected to pay the individual recipients 
+	*@param string $sourcePin: refers to the accounts pin number used for tigo cash 
+	*@param string $targetMsisdn: refers to the  that holds all of the recipients information 
+	*@param int $amountOwed: Balance of the recipient. This is the amount Owed to the individual recipient
 	*@return returns the decoded answer either as the balance (int) or a warning (string)
 	*/
-	public function TransferMoney(){
+	public function TransferMoney($sourceMsisdn, $sourcePin, $targetMsisdn, $amountOwed) 
+	{
 
 	    //Store your XML Request in a variable
 	    $input_xml = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://xmlns.tigo.com/MFS/WalletManagementRequest/V1" xmlns:v3="http://xmlns.tigo.com/RequestHeader/V3" xmlns:v2="http://xmlns.tigo.com/ParameterType/V2">
@@ -261,10 +348,10 @@ class Recipient extends CActiveRecord
             </v3:GeneralConsumerInformation>
          </v3:RequestHeader>
          <v1:requestBody>
-            <v1:sourceMsisdn>250725038839</v1:sourceMsisdn>
-            <v1:targetMsisdn>250728424547</v1:targetMsisdn>
-            <v1:pin>1463</v1:pin>
-            <v1:amount>100</v1:amount>
+            <v1:sourceMsisdn>'.$sourceMsisdn.'</v1:sourceMsisdn>
+            <v1:targetMsisdn>'.$targetMsisdn.'</v1:targetMsisdn>
+            <v1:pin>'.$sourcePin.'</v1:pin>
+            <v1:amount>'.$amountOwed.'</v1:amount>
          </v1:requestBody>
       </v1:MoneyTransferRequest>
    </soapenv:Body>
@@ -288,12 +375,9 @@ class Recipient extends CActiveRecord
 	// returns a long xml string reply
 	$xmlstring = curl_exec($soap_do);
 
-    // this returns either the balance (int) or an error (string)
+    // this returns either true (succesful) or an error  of type string
     return $result = MoneyTransferHelper::decodeString($xmlstring);
 	}
-
-
-
 
 
 

@@ -9,7 +9,8 @@ class RecipientController extends Controller
 	public $layout='//layouts/column2';
 
 	// this is the current list_id
-	public $id;
+	public $id; 
+
 
 	/**
 	 * @return array action filters
@@ -74,6 +75,7 @@ class RecipientController extends Controller
 
 		if(isset($_POST['Recipient']))
 		{
+
 			$model->attributes=$_POST['Recipient'];
 			// updates the list_id of the new individual 
 			// $model->list_id = $id; 
@@ -147,11 +149,6 @@ class RecipientController extends Controller
 		// gets the current user id 
 		$user_id = Login::model()->getUserId();
 
-		// calls transfer money
-		$result = Recipient::model()->TransferMoney(); 
-		echo $result;
-
-
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 			'id'=>$id,
@@ -195,30 +192,49 @@ class RecipientController extends Controller
 		return $model;
 	}
 	/**
-	* this function takes in the payment Id and calls the 
+	* this function takes in the payment Id and calls tigo cash via makePayment 
+	* After success the funciton creates new entries into bulkPayment table and individualPayment table 
 	*@param $id : id of the specified list
-	*@return this function 
+	*
 	*/
 	public function actionProcessPayment($id)
 	{
+
+
 		// re-sets the id for the lay-out
 		$this->id = $id;
 		// if the account id was passed in 
 		if(isset($_POST['listF']))
-		{
+		{		
 			// this is the id of the account selected 
 			$account_id = $_POST['listF'];
-			// total due before payment 
-			$totaldue = Recipient::model()->totaldue($id);
+			//  returns 'not enough money' if less than zero
+			$paymentStatus = Recipient::model()->CheckTransfer($id, $account_id); 
 			
-			$result = Recipient::model()->MakePayment($id, $account_id); 
-			
-			if($result == 'not enough money')
+			if($paymentStatus== 'not enough money')
 			{
 				Yii::app()->user->setFlash('not enough money', "Not Enough Money for Transaction");
 				$this->redirect(array('recipient/index', 'id' => $id));	
 			}
-			
+			else
+			{
+				// returns an 
+				$result = Recipient::model()->MakePayment($account_id, $id);
+				// if there were any errors in making the bulk payment print them out
+				if($result["transaction_status"] == 'has error')
+				{
+					$transaction_id = $result["transfer_id"];
+					// find all of the transactions that did not complete succesfully 
+					$BadTransactions = IndividualPayment::model()->findAll(array("condition"=>
+						              "transaction_id = $transaction_id && status != 'success'")); 
+					var_dump($BadTransaction); 
+				}
+				else 
+				{
+					var_dump($result); 
+				}
+
+			}
 			// else 
 			$this->render('paysummary',array(
 				'id'=>$id,
@@ -227,8 +243,6 @@ class RecipientController extends Controller
 				'user_id'=>Login::model()->getUserId(),
 				'accountname'=>Account::model()->AccountName($account_id),
 				'accountbalance'=>Account::model()->AccountBalance($account_id), 
-				''
-
 			));
 		}
 
@@ -242,8 +256,8 @@ class RecipientController extends Controller
 	 * @param Recipient $model the model to be validated
 	 */
 	protected function performAjaxValidation($model)
-	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='recipient-form')
+	{	
+		if (isset($_POST['ajax']) && $_POST['ajax'] === 'recipient-form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

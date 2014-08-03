@@ -15,7 +15,7 @@ class MoneyTransferHelper extends Helpers {
 		// if succesful than return true  
 		if(preg_match("/Money has been sent successfully/", $xml))
 		{
-			return true; 
+			return 'success'; 
 		}
 
 		// checks if the transaction is under 100 Rwf 
