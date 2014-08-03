@@ -10,6 +10,7 @@
  	width: 200px;
  }
 
+
  .smallbox { 
  	background-color: white;
  	height: 75px;
@@ -17,6 +18,13 @@
  	font-size:20px;
  	box-shadow: 0 0 10px #ccc;
  	font-family: inherit;
+ }
+
+ 
+ 
+.paysummary {
+  	font-size:10px;
+
  }
 
  .centertext {	

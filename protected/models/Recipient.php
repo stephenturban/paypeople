@@ -271,7 +271,7 @@ class Recipient extends CActiveRecord
 
 			// Makes the transfer and returns the status of the transfer 
 			$result = Recipient::model()->TransferMoney($account->msisdn, $account->pin, $recipient->msisdn, $recipient->balance);
-
+			
 			// the amount that the recipient should be paid 
 			$recipientBalance = $recipient->balance;
 
@@ -306,7 +306,7 @@ class Recipient extends CActiveRecord
 		// saves the model to the database 
 		$BPModel->save();
 		// transaction_status only returns "has error" if there was an error in the transaction.
-		return array("tranfer_id"=>$BPModel->id, "transaction_status"=>$error); 
+		return array("transfer_id"=>$BPModel->id, "transaction_status"=>$error); 
 
 	}
 

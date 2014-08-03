@@ -218,20 +218,15 @@ class RecipientController extends Controller
 			}
 			else
 			{
-				// returns an 
+				// returns an array with the transaction_status, and the transfer_id 
 				$result = Recipient::model()->MakePayment($account_id, $id);
 				// if there were any errors in making the bulk payment print them out
 				if($result["transaction_status"] == 'has error')
 				{
-					$transaction_id = $result["transfer_id"];
+					$transfer_id = $result["transfer_id"];
 					// find all of the transactions that did not complete succesfully 
-					$BadTransactions = IndividualPayment::model()->findAll(array("condition"=>
-						              "transaction_id = $transaction_id && status != 'success'")); 
-					var_dump($BadTransaction); 
-				}
-				else 
-				{
-					var_dump($result); 
+					$badTransactions = IndividualPayment::model()->findAll(array("condition"=>
+						              "transfer_id = $transfer_id && status != 'success'")); 
 				}
 
 			}
@@ -242,7 +237,8 @@ class RecipientController extends Controller
 				'numpeople'=>Paylist::model()->NumIndv($id),
 				'user_id'=>Login::model()->getUserId(),
 				'accountname'=>Account::model()->AccountName($account_id),
-				'accountbalance'=>Account::model()->AccountBalance($account_id), 
+				'accountbalance'=>Account::model()->AccountBalance($account_id),
+				'badTransactions'=>$badTransactions,  
 			));
 		}
 

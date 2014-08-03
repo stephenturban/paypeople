@@ -108,7 +108,7 @@ class BulkPayment extends CActiveRecord
    		{
 
    			// updates the user_id of the recipient
-       		// $this->user_id = Login::model()->getUserId(); 
+       		// 	$this->user_id = Login::model()->getUserId(); 
        
    		}
 		return parent::beforeSave();
